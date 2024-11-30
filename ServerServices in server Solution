@@ -1,0 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WindTunnel_Server
+{
+    internal class ServerServices
+    {
+        private Socket serverSocket;
+        private int clientsCount = 0;
+        private List<Socket> connectedClients;
+        
+        public ServerServices(Socket ServerSock) { this.serverSocket = ServerSock; }
+
+        public void addClient(Socket CLient)
+        {
+            connectedClients.Add(CLient);
+            this.clientsCount++;
+        }
+    }
+}
