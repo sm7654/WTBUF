@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+
+namespace WindTunnel_Server
+{
+    internal class Program
+    {
+
+        public static void ActiveClient(Socket Conn, ServerServices serverOb)
+        {
+            Thread t = new Thread(() => new ClientConstroller(Conn, serverOb));
+            t.Start();
+            serverOb.addClient(Conn);
+        }
+        static void Main(string[] args)
+        {
+
+
+
+            Socket ServerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Console.WriteLine("Enter port to bind to: ");
+            int port = int.Parse(Console.ReadLine());
+            IPAddress iP = IPAddress.Parse("0.0.0.0");
+            IPEndPoint Ep = new IPEndPoint(iP, port);
+            ServerServices ServerOb = new ServerServices(ServerSock);
+            ServerSock.Bind(Ep);
+            ServerSock.Listen(port);
+            Console.WriteLine("listening at " + Ep.ToString());
+
+            while (true)
+            {
+                Socket ClientConn = ServerSock.Accept();
+                Console.WriteLine("New Client Connected");
+                ActiveClient(ClientConn, ServerOb);
+            }
+            
+        }
+    }
+}
