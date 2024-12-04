@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using System.Security.Cryptography;
+using System.Runtime.CompilerServices;
+
+namespace WindTunnel_Server
+{
+    internal class ServerEncryption
+    {
+        private byte[] Pub_k;
+        private byte[] Pri_k;
+        
+        public ServerEncryption() {   }
+
+
+        public byte[] Encrypt(byte[] DataToEn)
+        {
+            //return encryptedData
+        }
+        public string Decrypt(byte[] datatodecrypt)
+        {
+            //return decryptedData
+        }
+
+
+    }
+}
