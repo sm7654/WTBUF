@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WindTunnel_Server
@@ -11,17 +13,49 @@ namespace WindTunnel_Server
     {
         private Socket Conn;
         private ServerServices server;
+        private byte[] ClientPublicKey;
         public ClientConstroller(Socket Conn, ServerServices Server) {
             this.Conn = Conn;
-            this.server = Server;
-            ReadData();
+             this.server = Server;
+            new Thread(() => ReadDataFromCLient()).Start();
+            byte[] data = Encription(" ");
+            Console.WriteLine(Decrypt(data));
         }
 
-        public void ReadData()
+
+
+        public void ReadDataFromCLient()
         {
-            //listen to recived data
+            while(true)
+            {
+                byte[] BufferSizeRecive = new byte[1024];
+                int BytesRead = this.Conn.Receive(BufferSizeRecive);
+
+                try
+                {
+                    int BufferSize = int.Parse(Encoding.UTF8.GetString(BufferSizeRecive, 0, BytesRead));
+                    byte[] Buffer = new byte[BufferSize];
+
+                    BytesRead = Conn.Receive(Buffer);
+                    string MSG = Encoding.UTF8.GetString(Buffer, 0 , BytesRead);
+                    Console.WriteLine("Massage from client: ", MSG);
+                } catch (FormatException e) { Console.WriteLine("Did not recived a number....."); }
+            }
         }
 
+        public byte[] Encription(string x)
+        {
+            Console.WriteLine("Trying to encrypt.....");
+            byte[] EnData = server.EncryptData(Encoding.UTF8.GetBytes(x));
+            Console.WriteLine("Encrypted Text: \n" + Encoding.UTF8.GetString(EnData));
+            return EnData;
+        }
+        public string Decrypt(byte[] data)
+        {
+            Console.WriteLine("Original text: \n");
+            string Decrypted = server.DecryptData(data);
+            return Decrypted;
+        }
 
     }
 }
