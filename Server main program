@@ -16,30 +16,46 @@ namespace WindTunnel_Server
 
         public static void ActiveClient(Socket Conn, ServerServices serverOb)
         {
-            Thread t = new Thread(() => new ClientConstroller(Conn, serverOb));
-            t.Start();
-            serverOb.addClient(Conn);
+            serverOb.addClient(Conn);                  
+            new Thread(() => new ClientConstroller(Conn, serverOb)).Start();
+            
         }
+
+
+
+
+
         static void Main(string[] args)
         {
 
 
 
             Socket ServerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            Console.WriteLine("Enter port to bind to: ");
-            int port = int.Parse(Console.ReadLine());
-            IPAddress iP = IPAddress.Parse("0.0.0.0");
-            IPEndPoint Ep = new IPEndPoint(iP, port);
-            ServerServices ServerOb = new ServerServices(ServerSock);
-            ServerSock.Bind(Ep);
-            ServerSock.Listen(port);
-            Console.WriteLine("listening at " + Ep.ToString());
+            
+            int port = 0;// port forwarding - 65000
+            
+            //
+            IPEndPoint Ep = new IPEndPoint(IPAddress.Parse("0.0.0.0"), port);
+            //
+
+            ServerEncryption Crypto = new ServerEncryption(); 
+            ServerServices ServerOb = new ServerServices(ServerSock, Crypto);
+            
+            ServerSock.Bind(Ep); /*  */ ServerSock.Listen(port);
+
+
+
+
+            Console.WriteLine("listening at " + ((IPEndPoint)ServerSock.LocalEndPoint).Port);
+            
+
 
             while (true)
             {
                 Socket ClientConn = ServerSock.Accept();
                 Console.WriteLine("New Client Connected");
                 ActiveClient(ClientConn, ServerOb);
+                
             }
             
         }
