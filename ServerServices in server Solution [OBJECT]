@@ -11,14 +11,30 @@ namespace WindTunnel_Server
     {
         private Socket serverSocket;
         private int clientsCount = 0;
-        private List<Socket> connectedClients;
+        private List<Socket> connectedClients = new List<Socket>();
+        private ServerEncryption CryptoService;
         
-        public ServerServices(Socket ServerSock) { this.serverSocket = ServerSock; }
+        public ServerServices(Socket ServerSock, ServerEncryption Crypto) { this.serverSocket = ServerSock; this.CryptoService = Crypto; }
 
         public void addClient(Socket CLient)
         {
             connectedClients.Add(CLient);
             this.clientsCount++;
         }
+
+        public int GetOnlineClient()
+        {
+            return clientsCount;
+        }
+
+        public byte[] EncryptData(byte[] bytes)
+        {
+            return this.CryptoService.Encrypt(bytes);
+        }
+        public string DecryptData(byte[] datatodecrypt)
+        {
+            return CryptoService.Decrypt(datatodecrypt);
+        }
+        
     }
 }
