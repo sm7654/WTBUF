@@ -10,18 +10,25 @@ namespace WindTunnel_Client
 {
     internal class Program
     {
+
+
+
+
         static void Main(string[] args)
         {
             IPAddress iP = IPAddress.Parse("127.0.0.1");
-            int port = 12345;
+
+            int ServerPort = 10000;
+            
             try
             {
                 Socket ClientSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPEndPoint ServerPath = new IPEndPoint(iP, port);
+                IPEndPoint ServerPath = new IPEndPoint(iP, ServerPort);
                 Console.WriteLine("Trying to connect to server...");
                 ClientSock.Connect(ServerPath);
                 Console.WriteLine("CONNECTION ESTABLISHED");
-                ClientSock.Close();
+                Console.ReadLine();
+                
             } catch (Exception ex) 
             { }
         }
