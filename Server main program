@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -7,6 +8,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 
 namespace WindTunnel_Server
@@ -25,24 +27,64 @@ namespace WindTunnel_Server
 
 
 
+       //delete
+        public static void portProvider(Socket ServerSock)
+        {
+            Socket providerSock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 10000);
+            providerSock.Bind(iPEndPoint);
+            byte[] bytes = new byte[1024];
+            EndPoint SenderSource = new IPEndPoint(IPAddress.Any, 0);
+            providerSock.ReceiveFrom(bytes, ref SenderSource);
+            int ServerPort = ((IPEndPoint)ServerSock.LocalEndPoint).Port;
+            bytes = Encoding.UTF8.GetBytes(ServerPort.ToString());
+            providerSock.SendTo(bytes, SenderSource);
+        }
+
+
+
+
+
+
+
+
+
+
+        public static void ConnectToSql()
+        {
+            string ConnString = "Data Source=DESKTOP-03BNVH4;Initial Catalog=Test_1;Integrated Security=True;Connect Timeout=30;Encrypt=True;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
+            SqlConnection connection = new SqlConnection(ConnString);
+            connection.Open();
+            string name = Console.ReadLine();
+            string q = $"INSERT INTO Table_1 (name) VALUES ('{name}')";
+
+            SqlCommand c = new SqlCommand(q, connection);
+            c.ExecuteNonQuery();
+            
+        }
+
+
+
         static void Main(string[] args)
         {
 
-
+            ConnectToSql();
 
             Socket ServerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             
-            int port = 10000;// port forwarding - 65000
+            int port = 0;// port forwarding - 65000
             
-            //
+            
             IPEndPoint Ep = new IPEndPoint(IPAddress.Parse("0.0.0.0"), port);
-            //
+            
 
             ServerEncryption Crypto = new ServerEncryption(); 
             ServerServices ServerOb = new ServerServices(ServerSock, Crypto);
             
             ServerSock.Bind(Ep); /*  */ ServerSock.Listen(port);
 
+            new Thread(() => portProvider(ServerSock)).Start();
 
 
 
@@ -57,6 +99,7 @@ namespace WindTunnel_Server
                 ActiveClient(ClientConn, ServerOb);
                 
             }
+            
             
         }
     }
